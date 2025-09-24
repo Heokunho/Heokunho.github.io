@@ -8,9 +8,9 @@ I am a Ph.D. student at ... -->
 
 ## Research Interests
 
-- **3D Motion Generation:** Text-driven Human Motion Generation
-- **3D Scene Understanding:** Semantic Scene Graph Prediction
-- **Object Detection:** Cross-Domain Few-Shot Object Detection
+- **Human Animation:** Text-driven Human Motion Generation
+- **Scene Understanding:** 3D Semantic Scene Graph Prediction
+- **Computer Vision:** Cross-Domain Few-Shot Object Detection
 
 ## News
 

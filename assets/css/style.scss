@@ -3,9 +3,24 @@
 
 @import "minimal-light";
 
-.image.avatar img {
-  width: 300px;        
-  height: 300px;       
-  object-fit: cover;   
-  border-radius: 50%;  
+.image.avatar {
+  width: 260px;           
+  height: 260px;          
+  border-radius: 50%;
+  overflow: hidden;
+  display: block;
+  margin: 0 auto 14px;    
+  padding: 0;             
+  background: none;       
 }
+
+.image.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;      
+  display: block;        
+  border-radius: 0;      
+}
+
+header { text-align: center; }
+.social-icons { display: flex; justify-content: center; gap: 10px; }
