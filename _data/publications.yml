@@ -9,7 +9,7 @@ main:
     image: ./assets/img/OCRL.png
     # notes: Early Accept
 
-  - title: ExPart: Expressive Part-Motion Model for Text-to-Motion Synthesis
+  - title: ExPart":"" Expressive Part-Motion Model for Text-to-Motion Synthesis
     authors: <strong>KunHo Heo*</strong>, SuYeon Kim, MyeongAh Cho
     conference_short: ArXiv
     conference: Under Review
