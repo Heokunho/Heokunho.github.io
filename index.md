@@ -14,7 +14,7 @@ I am a Ph.D. student at ... -->
 
 ## News
 
-- **[Sep. 2020]** <b><span style="color:blue;">One</span></b> <b>paper</b> got accepted at <b>NeurIPS 2025</b>.
+- **[Sep. 2025]** <b><span style="color:blue;">One</span></b> <b>paper</b> got accepted at <b>NeurIPS 2025</b>.
 
 {% include_relative _includes/publications.md %}
 
