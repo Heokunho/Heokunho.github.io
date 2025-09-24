@@ -1,20 +1,20 @@
 main:
 
-  - title: Object-Centric Representation Learning for Enhanced 3D Scene Graph Prediction
-    authors: <strong>KunHo Heo*</strong>, GiHyun Kim*, SuYeon Kim, MyeongAh Cho
-    conference_short: NeurIPS
-    conference: The Thirty-Ninth Annual Conference on Neural Information Processing Systems <strong>NeurIPS</strong>, 2025
-    pdf: https://arxiv.org/pdf/2306.00988.pdf # 추후 수정
-    code: https://github.com/MrGiovanni/ContinualLearning # 추후 수정
-    image: ./assets/img/OCRL.png
+  - title: "Object-Centric Representation Learning for Enhanced 3D Scene Graph Prediction"
+    authors: "<strong>KunHo Heo*</strong>, GiHyun Kim*, SuYeon Kim, MyeongAh Cho"
+    conference_short: "NeurIPS"
+    conference: "The Thirty-Ninth Annual Conference on Neural Information Processing Systems <strong>NeurIPS</strong>, 2025"
+    pdf: "https://arxiv.org/pdf/2306.00988.pdf" # 추후 수정
+    code: "https://github.com/MrGiovanni/ContinualLearning" # 추후 수정
+    image: "./assets/img/OCRL.png"
     # notes: Early Accept
 
-  - title: ExPart":"" Expressive Part-Motion Model for Text-to-Motion Synthesis
-    authors: <strong>KunHo Heo*</strong>, SuYeon Kim, MyeongAh Cho
-    conference_short: ArXiv
-    conference: Under Review
-    pdf: https://arxiv.org/pdf/2002.10211.pdf # 추후 수정
-    code: https://github.com/yaoyao-liu/class-incremental-learning/tree/main/mnemonics-training # 추후 수정
-    page: https://class-il.mpi-inf.mpg.de/mnemonics/ # 추후 수정
+  - title: "ExPart: Expressive Part-Motion Model for Text-to-Motion Synthesis"
+    authors: "<strong>KunHo Heo*</strong>, SuYeon Kim, MyeongAh Cho"
+    conference_short: "ArXiv"
+    conference: "Under Review"
+    pdf: "https://arxiv.org/pdf/2002.10211.pdf" # 추후 수정
+    code: "https://github.com/yaoyao-liu/class-incremental-learning/tree/main/mnemonics-training" # 추후 수정
+    page: "https://class-il.mpi-inf.mpg.de/mnemonics/" # 추후 수정
     # notes: Oral Presentation
-    image: ./assets/img/ExPart.png
+    image: "./assets/img/ExPart.png"
