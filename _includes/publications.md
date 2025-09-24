@@ -8,7 +8,7 @@
     {%- if link.pdf -%}{%- assign has_papers = true -%}{%- break -%}{%- endif -%}
   {%- endfor -%}
   {%- if has_papers -%}
-  <h3 style="margin-top:18px;">Papers</h3>>PDF</a>
+  <h3 style="margin-top:18px;">Papers</h3>PDF</a>
   <ol class="bibliography">
     {%- for link in site.data.publications.main -%}
       {%- if link.pdf -%}
