@@ -12,10 +12,10 @@ canonical: https://Heokunho.github.io/
 
 # Links 
 # If you don't need one of them, you may delete the corresponding line.
-cv_link: assets/files/curriculum_vitae.pdf
-github_link: https://github.com/
-linkedin: https://www.linkedin.com/
-google_scholar: https://scholar.google.com/
+cv_link: assets/files/curriculum_vitae.pdf # 추후 수정
+github_link: https://github.com/ # 추후 수정
+linkedin: https://www.linkedin.com/ # 추후 수정
+google_scholar: https://scholar.google.com/ # 추후 수정
 
 # Images (e.g., your profile picture and your website's favicon) 
 # "favicon" and "favicon_dark" are used for the light and dark modes, respectively. 
