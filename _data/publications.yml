@@ -5,8 +5,8 @@ main:
     conference_short: "NeurIPS"
     conference: "The Thirty-Ninth Annual Conference on Neural Information Processing Systems (<strong>NeurIPS</strong>), 2025"
     pdf: "https://arxiv.org/pdf/2306.00988.pdf" # 추후 수정
-    code: "https://github.com/MrGiovanni/ContinualLearning" # 추후 수정
-    page: "https://class-il.mpi-inf.mpg.de/mnemonics/" # 추후 수정
+    code: "https://github.com/VisualScienceLab-KHU/OCRL-3DSSG-Codes"
+    page: "https://visualsciencelab-khu.github.io/OCRL-3DSSG/"
     image: "./assets/img/OCRL.png"
     # notes: Early Accept
 
