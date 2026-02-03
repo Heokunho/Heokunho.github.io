@@ -10,7 +10,7 @@ I am a Ph.D. student at ... -->
 
 - **Human Animation:** Text-driven Human Motion Generation
 - **Scene Understanding:** 3D Semantic Scene Graph Prediction
-- **Computer Vision:** Cross-Domain Few-Shot Object Detection
+- **Computer Vision:** Few-Shot Object Detection
 
 ## News
 

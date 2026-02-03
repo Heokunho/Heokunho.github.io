@@ -1,6 +1,6 @@
 main:
 
-  - title: "Object-Centric Representation Learning for Enhanced 3D Scene Graph Prediction"
+  - title: "Object-Centric Representation Learning for Enhanced 3D Semantic Scene Graph Prediction"
     authors: "<strong>KunHo Heo*</strong>, GiHyun Kim*, SuYeon Kim, MyeongAh Cho"
     conference_short: "NeurIPS"
     conference: "The Thirty-Ninth Annual Conference on Neural Information Processing Systems (<strong>NeurIPS</strong>), 2025"
