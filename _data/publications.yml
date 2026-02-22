@@ -1,7 +1,7 @@
 main:
 
   - title: "ParTY: Part-Guidance for Expressive Text-to-Motion Synthesis"
-    authors: "<strong>KunHo Heo</strong>, SuYeon Kim, Yonghyun Gwon, Youngbin Kim ,MyeongAh Cho"
+    authors: "<strong>KunHo Heo</strong>, SuYeon Kim, Yonghyun Gwon, Youngbin Kim, MyeongAh Cho"
     conference_short: "CVPR"
     conference: "IEEE/CVF Conference on Computer Vision and Pattern Recognition (<strong>CVPR</strong>), 2026"
     pdf: "https://arxiv.org/pdf/2510.04714" # 수정 예정
