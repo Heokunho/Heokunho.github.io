@@ -1,5 +1,14 @@
 main:
 
+  - title: "ParTY: Part-Guidance for Expressive Text-to-Motion Synthesis"
+    authors: "<strong>KunHo Heo*</strong>, SuYeon Kim, Yonghyun Gwon, Youngbin Kim ,MyeongAh Cho"
+    conference_short: "CVPR"
+    conference: "IEEE/CVF Conference on Computer Vision and Pattern Recognition (<strong>CVPR</strong>), 2026"
+    pdf: "https://arxiv.org/pdf/2510.04714" # 수정 예정
+    code: "https://github.com/VisualScienceLab-KHU/OCRL-3DSSG-Codes" # 수정 예정
+    page: "https://visualsciencelab-khu.github.io/OCRL-3DSSG/" # 수정 예정
+    image: "./assets/img/ParTY.png"
+
   - title: "Object-Centric Representation Learning for Enhanced 3D Semantic Scene Graph Prediction"
     authors: "<strong>KunHo Heo*</strong>, GiHyun Kim*, SuYeon Kim, MyeongAh Cho"
     conference_short: "NeurIPS"
@@ -8,14 +17,3 @@ main:
     code: "https://github.com/VisualScienceLab-KHU/OCRL-3DSSG-Codes"
     page: "https://visualsciencelab-khu.github.io/OCRL-3DSSG/"
     image: "./assets/img/OCRL.png"
-    # notes: Early Accept
-
-  # - title: "ExPart: Expressive Part-Motion Model for Text-to-Motion Synthesis"
-  #   authors: "<strong>KunHo Heo</strong>, SuYeon Kim, MyeongAh Cho"
-  #   conference_short: "ArXiv"
-  #   conference: "Under Review"
-  #   pdf: "https://arxiv.org/pdf/2002.10211.pdf" # 추후 수정
-  #   code: "https://github.com/yaoyao-liu/class-incremental-learning/tree/main/mnemonics-training" # 추후 수정
-  #   page: "https://class-il.mpi-inf.mpg.de/mnemonics/" # 추후 수정
-  #   # notes: Oral Presentation
-  #   image: "./assets/img/ExPart.png"
