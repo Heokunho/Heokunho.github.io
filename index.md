@@ -8,7 +8,7 @@ I am a Ph.D. student at ... -->
 
 ## Research Interests
 
-- **3D Vision:** Human Motion Generation, Scene Graph Prediction
+- **3D Vision:** Scene Understanding, Character Animation
 - **2D Vision:** Few-Shot Object Detection
 
 ## News
