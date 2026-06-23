@@ -1,5 +1,14 @@
 main:
 
+  - title: "Rethinking Prototype-based Similarity Learning for Few-Shot Object Detection"
+    authors: "<strong>KunHo Heo*</strong>, Seungjae Kim*, Wongyu Lee*, SuYeon Kim, MyeongAh Cho"
+    conference_short: "ECCV"
+    conference: "European Conference on Computer Vision (<strong>ECCV</strong>), 2026"
+    pdf: "https://arxiv.org/pdf/2606.23069"
+    code: "https://github.com/VisualScienceLab-KHU/ReSet"
+    page: "https://visualsciencelab-khu.github.io/ReSet_project/"
+    image: "./assets/img/ReSet.png"
+
   - title: "ParTY: Part-Guidance for Expressive Text-to-Motion Synthesis"
     authors: "<strong>KunHo Heo</strong>, SuYeon Kim, Yonghyun Gwon, Youngbin Kim, MyeongAh Cho"
     conference_short: "CVPR"
