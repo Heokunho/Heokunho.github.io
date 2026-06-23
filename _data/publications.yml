@@ -7,7 +7,7 @@ main:
     pdf: "https://arxiv.org/pdf/2606.23069"
     code: "https://github.com/VisualScienceLab-KHU/ReSet"
     page: "https://visualsciencelab-khu.github.io/ReSet_project/"
-    image: "./assets/img/ReSet.png"
+    image: "./assets/img/ReSet.PNG"
 
   - title: "ParTY: Part-Guidance for Expressive Text-to-Motion Synthesis"
     authors: "<strong>KunHo Heo</strong>, SuYeon Kim, Yonghyun Gwon, Youngbin Kim, MyeongAh Cho"

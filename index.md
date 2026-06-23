@@ -8,11 +8,13 @@ I am a Ph.D. student at ... -->
 
 ## Research Interests
 
-- **3D Vision:** Scene Understanding, Character Animation
-- **2D Vision:** Few-Shot Object Detection
+- **3D Vision & Robotics:**
+  - Character Animation
+  - Scene Understanding
 
 ## News
 
+- **[Jun. 2026]** <b><span style="color:blue;">One</span></b> <b>paper</b> got accepted at <b>ECCV 2026</b>.
 - **[Feb. 2026]** <b><span style="color:blue;">One</span></b> <b>paper</b> got accepted at <b>CVPR 2026</b>.
 - **[Sep. 2025]** <b><span style="color:blue;">One</span></b> <b>paper</b> got accepted at <b>NeurIPS 2025</b>.
 - **[Mar. 2025]** Joined as an M.S. student at <b><a href="https://vslab.khu.ac.kr/">Visual Science Lab</a></b>, Kyung Hee University.
