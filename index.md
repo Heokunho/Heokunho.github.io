@@ -14,6 +14,7 @@ I am a Ph.D. student at ... -->
 
 ## News
 
+- **[Sep. 2026]** <b><span style="color:blue;">One</span></b> <b>paper</b> got accepted at <b>NeurIPS 2026</b>.
 - **[Jun. 2026]** <b><span style="color:blue;">One</span></b> <b>paper</b> got accepted at <b>ECCV 2026</b>.
 - **[Feb. 2026]** <b><span style="color:blue;">One</span></b> <b>paper</b> got accepted at <b>CVPR 2026</b>.
 - **[Sep. 2025]** <b><span style="color:blue;">One</span></b> <b>paper</b> got accepted at <b>NeurIPS 2025</b>.
