@@ -7,7 +7,7 @@ main:
     pdf: "https://arxiv.org/pdf/2609.35059"
     code: "https://github.com/VisualScienceLab-KHU/GRIM"
     page: "https://github.com/VisualScienceLab-KHU/GRIM_project/"
-    image: "./assets/img/GRIM.PNG"
+    image: "./assets/img/GRIM.png"
 
   - title: "Rethinking Prototype-based Similarity Learning for Few-Shot Object Detection"
     authors: "<strong>KunHo Heo*</strong>, Seungjae Kim*, Wongyu Lee*, SuYeon Kim, MyeongAh Cho"
