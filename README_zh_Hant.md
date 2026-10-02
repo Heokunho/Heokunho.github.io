@@ -75,15 +75,14 @@ canonical: https://minimal-light-theme.yliu.me/
 
 # 鏈接
 google_scholar: https://scholar.google.com/
-cv_link: files/Curriculum_Vitae.pdf
 github_link: https://github.com/
 linkedin: https://www.linkedin.com/
 twitter: https://twitter.com/
 
 # 圖片路徑
-avatar: ./assets/img/avatar.png
-favicon: ./assets/img/favicon.png
-favicon_dark: ./assets/img/favicon-dark.png
+avatar: ./assets/img/avatar.jpg
+favicon: ./assets/img/icon.png
+favicon_dark: ./assets/img/icon.png
 
 # Google Analytics ID
 google_analytics: UA-111540567-4
