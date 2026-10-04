@@ -51,10 +51,11 @@ html[data-theme="dark"] .motion-studio {
 .motion-studio[data-open="false"] .studio-chevron { display: none; }
 .studio-moon, html[data-theme="dark"] .studio-sun { display: none; }
 html[data-theme="dark"] .studio-moon { display: block; }
-.studio-panel { opacity: 1; transition: opacity .18s ease; }
+.studio-panel { padding-bottom: 16px; opacity: 1; transition: opacity .18s ease; }
 .motion-studio[data-open="false"] .studio-panel { opacity: 0; pointer-events: none; }
-.studio-heading { height: 42px; box-sizing: border-box; display: flex; align-items: center; padding: 0 92px 0 17px; }
+.studio-heading { min-height: 62px; box-sizing: border-box; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 12px 92px 6px 17px; }
 .studio-title { margin: 0; color: var(--studio-ink); font: 500 17px/1.3 "Crimson Pro", Georgia, serif; letter-spacing: .02em; }
+.studio-help { margin: 0; color: var(--studio-muted); font-size: 10px; line-height: 1.5; }
 .studio-stage { position: relative; height: 292px; background: radial-gradient(ellipse at 50% 50%, rgba(212, 223, 215, .26), transparent 73%); }
 #studio-canvas { width: 100%; height: 100%; display: block; touch-action: pan-y; cursor: crosshair; }
 #studio-canvas[data-hover] { cursor: pointer; }
@@ -64,11 +65,6 @@ html[data-theme="dark"] .studio-moon { display: block; }
 .studio-fallback { flex-wrap: wrap; align-content: center; gap: 12px; text-align: center; padding: 25px; }
 .studio-fallback p { width: 100%; margin: 0; }
 .studio-fallback button, .studio-fallback a { padding: 6px 10px; border: 1px solid var(--studio-line); border-radius: 4px; }
-.studio-controls { padding: 9px 14px; display: flex; align-items: center; justify-content: space-between; gap: 7px; border-top: 1px solid var(--studio-line); }
-.studio-controls p { font-size: 10px; margin: 0; color: var(--studio-muted); }
-.studio-actions { display: flex; align-items: center; gap: 3px; flex: none; }
-.studio-actions button { min-height: 30px; padding: 4px 7px; border-radius: 4px; font-size: 10px; white-space: nowrap; }
-.studio-actions button:hover:not(:disabled) { background: #819b921c; }
 .studio-book-card { position: absolute; z-index: 4; left: 14px; bottom: 12px; width: min(355px, calc(100% - 64px)); padding: 14px 16px; border: 1px solid var(--studio-line); border-radius: 8px; background: var(--studio-card); box-shadow: 0 5px 22px #0000000d; }
 .studio-card-eyebrow { display: block; padding-right: 24px; font-size: 9px; letter-spacing: .09em; text-transform: uppercase; color: var(--studio-muted); margin-bottom: 8px; }
 .studio-card-content { max-height: 176px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding-right: 3px; }
@@ -97,12 +93,8 @@ html[data-theme="dark"] .studio-moon { display: block; }
 .publications li[id]:target .title { text-decoration: underline; text-underline-offset: 4px; }
 @media (max-width: 600px) {
   .studio-shell { margin-bottom: 20px; }
-  .studio-heading { height: 46px; padding-left: 14px; }
+  .studio-heading { min-height: 66px; padding-left: 14px; padding-right: 100px; }
   .studio-stage { height: 270px; }
-  .studio-controls { flex-wrap: wrap; padding: 7px 12px; }
-  .studio-controls p { flex-basis: 100%; }
-  .studio-actions { justify-content: space-between; width: 100%; }
-  .studio-actions button { min-height: 40px; min-width: 44px; padding: 4px; }
   .studio-toolbar button { width: 40px; height: 40px; }
   .studio-book-list button { min-height: 44px; }
   .studio-card-content { max-height: 166px; }

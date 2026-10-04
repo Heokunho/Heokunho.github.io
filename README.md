@@ -8,8 +8,8 @@ Select the door in the scene to walk over, open it, and step outside;
 the study folds only after the avatar leaves. Reopening returns the avatar inside.
 The bookshelf contains one selectable book per publication;
 each opens its paper details and an optional link to that publication on the page. The newspaper on the desk
-shows the same News entries as the page. Compact buttons offer Newspaper,
-Bookshelf, and Lamp interactions from a keyboard or touch screen. Folding animates the study into
+shows the same News entries as the page. Click or tap objects directly in the
+scene to interact with them. Folding animates the study into
 a small icon aligned to the left; the study starts folded on each visit.
 
 The avatar references `assets/img/avatar.jpg`. Its poses are authored locally;

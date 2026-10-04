@@ -58,6 +58,7 @@ export function createRoom(content) {
 }
 
 async function objectPoint(page, name, publicationIndex, localPoint) {
+  await page.locator('#studio-canvas').scrollIntoViewIfNeeded();
   return page.evaluate(async ({ name, publicationIndex, localPoint }) => {
     const THREE = await import('/assets/js/vendor/three.module.min.js');
     const room = window.__studioRoom;
@@ -67,12 +68,15 @@ async function objectPoint(page, name, publicationIndex, localPoint) {
       if (name === 'book' && node.userData.publicationIndex === publicationIndex) target = node;
       if (name === 'news' && node.name === 'Research newspaper') target = node;
       if (name === 'door' && node.name === 'Exit door') target = node;
+      if (name === 'lamp' && node.name === 'Theme lamp') target = node;
     });
     const point = name === 'book'
       ? target.children.find(node => node.geometry?.type === 'PlaneGeometry').getWorldPosition(new THREE.Vector3())
       : name === 'door'
         ? target.localToWorld(new THREE.Vector3(...(localPoint || [0, 1.15, -0.04])))
-        : target.localToWorld(new THREE.Vector3(-0.15, 0.015, 0));
+        : name === 'lamp'
+          ? target.localToWorld(new THREE.Vector3(-0.20, 1.72, 0))
+          : target.localToWorld(new THREE.Vector3(-0.15, 0.015, 0));
     const rect = document.getElementById('studio-canvas').getBoundingClientRect();
     const aspect = rect.width / rect.height;
     const height = Math.max(4.25, 7.8 / aspect);
@@ -223,7 +227,8 @@ test('the avatar leaves the newspaper through the relocated door without furnitu
     pickable: window.__studioRoom.pickables.some(object => object.userData.interaction === 'chair'),
   }));
   expect(removedChair).toEqual({ geometry: false, target: false, pickable: false });
-  await page.getByRole('button', { name: 'Newspaper', exact: true }).click();
+  const newspaper = await objectPoint(page, 'news');
+  await page.mouse.click(newspaper.x, newspaper.y);
   await expect(page.locator('#studio-book-card')).toHaveAttribute('data-reading', 'news', { timeout: 15000 });
   await page.locator('#studio-card-close').click();
   await page.evaluate(() => {
@@ -264,7 +269,8 @@ test('door approach can be cancelled and reopening during departure restores the
   const point = await objectPoint(page, 'door');
   await page.mouse.click(point.x, point.y);
   await expect(page.locator('#studio-status')).toHaveText('Walking to the door.');
-  await page.getByRole('button', { name: 'Lamp', exact: true }).click();
+  const lamp = await objectPoint(page, 'lamp');
+  await page.mouse.click(lamp.x, lamp.y);
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark', { timeout: 15000 });
   const cancelled = await page.evaluate(() => window.__studioFrames);
   expect(cancelled.every(frame => frame.doorAngle === 0 && frame.open === 'true')).toBe(true);
@@ -274,7 +280,8 @@ test('door approach can be cancelled and reopening during departure restores the
   await page.locator('#studio-toggle').click();
   await expect(page.locator('#studio-panel')).toBeHidden();
   await expectResetAfterExit(page);
-  await page.getByRole('button', { name: 'Lamp', exact: true }).click();
+  const reopenedLamp = await objectPoint(page, 'lamp');
+  await page.mouse.click(reopenedLamp.x, reopenedLamp.y);
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light', { timeout: 15000 });
   await expect(page.locator('#studio-toggle')).toHaveAttribute('aria-expanded', 'true');
 });

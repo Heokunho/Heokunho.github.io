@@ -6,9 +6,11 @@ async function ready(page) {
     await page.locator('#studio-toggle').click();
   }
   await expect(page.locator('#motion-studio')).toHaveAttribute('data-ready', 'true');
+  await page.locator('#studio-canvas').scrollIntoViewIfNeeded();
 }
 
-async function clickWorldPoint(page, x, y, z) {
+async function clickWorldPoint(page, x, y, z, { touch = false } = {}) {
+  await page.locator('#studio-canvas').scrollIntoViewIfNeeded();
   const point = await page.evaluate(async ({ x, y, z }) => {
     const THREE = await import('/assets/js/vendor/three.module.min.js');
     const rect = document.getElementById('studio-canvas').getBoundingClientRect();
@@ -21,7 +23,25 @@ async function clickWorldPoint(page, x, y, z) {
     const screen = new THREE.Vector3(x, y, z).project(camera);
     return { x: rect.left + (screen.x + 1) * rect.width / 2, y: rect.top + (1 - screen.y) * rect.height / 2 };
   }, { x, y, z });
-  await page.mouse.click(point.x, point.y);
+  if (touch) await page.touchscreen.tap(point.x, point.y);
+  else await page.mouse.click(point.x, point.y);
+}
+
+async function expectHeaderHelpLayout(page) {
+  const help = page.locator('#studio-help');
+  await expect(help).toHaveCount(1);
+  await expect(page.getByText('Click to walk · Select an object', { exact: true })).toHaveCount(1);
+  await expect(page.locator('.studio-heading > #studio-help')).toBeVisible();
+  await expect(page.locator('.studio-controls, .studio-actions, [data-studio-action]')).toHaveCount(0);
+  await expect(page.locator('#studio-canvas')).toHaveAttribute('aria-describedby', 'studio-help');
+  await expect(page.locator('#studio-panel')).toHaveCSS('padding-bottom', '16px');
+  const titleBox = await page.locator('.studio-title').boundingBox();
+  const helpBox = await help.boundingBox();
+  const stageBox = await page.locator('#studio-stage').boundingBox();
+  const panelBox = await page.locator('#studio-panel').boundingBox();
+  expect(titleBox.y + titleBox.height).toBeLessThanOrEqual(helpBox.y);
+  expect(helpBox.y + helpBox.height).toBeLessThanOrEqual(stageBox.y);
+  expect(panelBox.y + panelBox.height - stageBox.y - stageBox.height).toBeCloseTo(16, 0);
 }
 
 test('desktop starts folded below About Me on every load while manual theme survives reload', async ({ page }) => {
@@ -50,7 +70,7 @@ test('desktop starts folded below About Me on every load while manual theme surv
   await expect(page.locator('#motion-studio')).not.toContainText('Human motion, in context');
   await expect(page.getByText('3D Interaction', { exact: true })).toBeVisible();
   await expect(page.locator('#studio-motion')).toHaveCount(0);
-  await expect(page.locator('.studio-actions button')).toHaveText(['Newspaper', 'Bookshelf', 'Lamp']);
+  await expectHeaderHelpLayout(page);
   await page.locator('#studio-theme').click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(32, 33, 43)');
@@ -80,7 +100,7 @@ test('desktop starts folded below About Me on every load while manual theme surv
 test('lamp theme changes on contact, with motion suspended while folded', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'light' });
   await ready(page);
-  await page.getByRole('button', { name: 'Lamp', exact: true }).click();
+  await clickWorldPoint(page, 0.56, 1.72, -1.30);
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.locator('#studio-toggle').click();
   // Waiting beyond the normal walk/contact duration catches hidden animation.
@@ -88,7 +108,7 @@ test('lamp theme changes on contact, with motion suspended while folded', async 
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.locator('#studio-toggle').click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark', { timeout: 15000 });
-  await page.getByRole('button', { name: 'Lamp', exact: true }).click();
+  await clickWorldPoint(page, 0.56, 1.72, -1.30);
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light', { timeout: 10000 });
 });
 
@@ -98,7 +118,7 @@ test('each book opens its publication and only the chosen link navigates', async
   const publications = await page.locator('[data-studio-publication]').evaluateAll(entries => entries.map(entry => ({
     title: entry.dataset.title, href: entry.dataset.href,
   })));
-  await page.getByRole('button', { name: 'Bookshelf', exact: true }).click();
+  await clickWorldPoint(page, -2.50, 1.54, 0.40);
   await expect(page.locator('#studio-book-card')).toBeVisible({ timeout: 15000 });
   await expect(page.locator('.studio-book-list button')).toHaveCount(publications.length);
   for (let index = 0; index < publications.length; index++) {
@@ -108,8 +128,10 @@ test('each book opens its publication and only the chosen link navigates', async
   expect(new URL(page.url()).hash).toBe('');
   await page.locator('#studio-card-close').click();
   await expect(page.locator('#studio-book-card')).toBeHidden();
-  await page.getByRole('button', { name: 'Bookshelf', exact: true }).press('Enter');
-  await expect(page.locator('[data-publication-index="0"]')).toBeFocused();
+  await expect(page.locator('#studio-canvas')).toBeFocused();
+  await clickWorldPoint(page, -2.50, 1.54, 0.40);
+  await expect(page.locator('#studio-book-card')).toBeVisible({ timeout: 15000 });
+  await page.locator('[data-publication-index="0"]').focus();
   await page.locator('[data-publication-index="2"]').press('Enter');
   await expect(page.locator('#studio-book-card')).toHaveAttribute('data-reading', 'publication:2');
   await expect(page.locator('.studio-publication-title')).toHaveText(publications[2].title);
@@ -134,7 +156,7 @@ test('newspaper shares the full News content and its optional link controls navi
     date.remove();
     return { date: dateText, html: clone.innerHTML.trim() };
   }));
-  await page.getByRole('button', { name: 'Newspaper', exact: true }).click();
+  await clickWorldPoint(page, -1.23, 0.99, -1.02);
   await expect(page.locator('#studio-book-card')).toHaveAttribute('data-reading', 'news', { timeout: 15000 });
   await expect(page.locator('.studio-news-list > li')).toHaveCount(expected.length);
   const actual = await page.locator('.studio-news-list > li').evaluateAll(entries => entries.map(entry => ({
@@ -204,7 +226,8 @@ test('mobile starts folded without fetching the scene and supports touch control
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await page.locator('#studio-toggle').tap();
   await expect(page.locator('#motion-studio')).toHaveAttribute('data-ready', 'true');
-  await page.getByRole('button', { name: 'Bookshelf', exact: true }).tap();
+  await expectHeaderHelpLayout(page);
+  await clickWorldPoint(page, -2.50, 1.54, 0.40, { touch: true });
   await expect(page.locator('#studio-book-card')).toBeVisible({ timeout: 15000 });
   await context.close();
 });

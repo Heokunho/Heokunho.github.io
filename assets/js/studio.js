@@ -15,14 +15,12 @@
   var cardEyebrow = document.getElementById('studio-card-eyebrow');
   var hover = document.getElementById('studio-hover');
   var themeButton = document.getElementById('studio-theme');
-  var actions = container.querySelectorAll('[data-studio-action]');
   var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   var open = false;
   var visible = true;
   var studio = null;
   var pending = null;
   var keyboardAction = false;
-  var lastObjectButton = null;
   var failed = false;
   var foldAnimation = null;
 
@@ -50,7 +48,7 @@
     var hadFocus = card.contains(document.activeElement);
     card.hidden = true;
     if (studio) studio.closeBooks();
-    if (restoreFocus || hadFocus) (lastObjectButton || canvas).focus({ preventScroll: true });
+    if (restoreFocus || hadFocus) canvas.focus({ preventScroll: true });
   }
   function navigateTo(href) {
     var target = document.getElementById(href.slice(1));
@@ -69,10 +67,9 @@
     parent.appendChild(link);
     return link;
   }
-  function runAction(name, event, button) {
+  function runAction(name, event) {
     if (!studio) return;
     keyboardAction = event ? event.detail === 0 : false;
-    if (button && !card.contains(button)) lastObjectButton = button;
     closeCard(false);
     studio.setPaused(false);
     studio.interact(name);
@@ -95,7 +92,7 @@
         var title = document.createElement('span');
         title.textContent = publication.title;
         button.append(number, title);
-        button.addEventListener('click', function (event) { runAction('publication:' + index, event, button); });
+        button.addEventListener('click', function (event) { runAction('publication:' + index, event); });
         row.appendChild(button);
         list.appendChild(row);
       });
@@ -134,7 +131,6 @@
     canvas.hidden = true;
     card.hidden = true;
     stage.setAttribute('aria-busy', 'false');
-    actions.forEach(function (button) { button.disabled = true; });
     status('The 3D study is unavailable. Theme and publication controls are still available.');
     if (studio) { studio.dispose(); studio = null; }
     console.warn('Interactive study could not start:', error);
@@ -176,7 +172,6 @@
       loading.hidden = true;
       stage.setAttribute('aria-busy', 'false');
       container.dataset.ready = 'true';
-      actions.forEach(function (button) { button.disabled = false; });
       studio.setPaused(reducedMotion.matches);
       syncTheme();
       syncActivity();
@@ -226,9 +221,6 @@
 
   toggle.addEventListener('click', function () { setOpen(!open, true); });
   themeButton.addEventListener('click', function () { window.siteTheme.toggle(); });
-  actions.forEach(function (button) {
-    button.addEventListener('click', function (event) { runAction(button.dataset.studioAction, event, button); });
-  });
   document.getElementById('studio-card-close').addEventListener('click', function () { closeCard(true); });
   document.getElementById('studio-retry').addEventListener('click', function () { failed = false; ensureStudio(); });
   container.addEventListener('keydown', function (event) {
