@@ -1,0 +1,7 @@
+<h2 id="news">News</h2>
+
+<ul class="news-list">
+  {% for item in site.data.news.main %}
+  <li><strong>[{{ item.date }}]</strong> {{ item.content }}</li>
+  {% endfor %}
+</ul>

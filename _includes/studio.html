@@ -1,0 +1,51 @@
+<div class="studio-shell" id="studio-shell">
+  <div class="motion-studio" id="motion-studio" data-open="false" role="region" aria-label="3D Interaction interactive study">
+    <div class="studio-toolbar">
+      <button class="studio-theme-toggle" id="studio-theme" type="button" aria-label="Switch color theme" title="Switch color theme" hidden>
+        <svg class="studio-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="1.4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <svg class="studio-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19.5 15.4A8.1 8.1 0 0 1 8.6 4.5a8.2 8.2 0 1 0 10.9 10.9Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="studio-disclosure" id="studio-toggle" type="button" aria-label="Open 3D Interaction" title="Open 3D Interaction" aria-expanded="false" aria-controls="studio-panel">
+        <svg class="studio-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m12 3 9 5v8l-9 5-9-5V8l9-5Z M3 8l9 5 9-5 M12 13v8" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+        <svg class="studio-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 12 5-5 5 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="studio-panel" id="studio-panel" hidden>
+      <div class="studio-heading"><p class="studio-title">3D Interaction</p></div>
+      <div class="studio-stage" id="studio-stage" aria-busy="true">
+        <canvas id="studio-canvas" tabindex="0" aria-label="3D study. Click the floor to walk, or use arrow keys. Select a book for its publication, the newspaper for news, or the lamp to change the theme. Select the door to walk outside and close the scene." aria-describedby="studio-help"></canvas>
+        <span class="studio-hover" id="studio-hover" aria-hidden="true" hidden></span>
+        <div class="studio-loading" id="studio-loading"><span class="studio-loading-dot"></span>Opening the study…</div>
+        <div class="studio-fallback" id="studio-fallback" hidden><p>The study couldn't open on this device.</p><button type="button" id="studio-retry">Try again</button><a href="#publications">View publications</a></div>
+        <div class="studio-book-card" id="studio-book-card" role="group" aria-label="Study reading panel" hidden>
+          <button class="studio-card-close" id="studio-card-close" type="button" aria-label="Close reading panel">×</button>
+          <span class="studio-card-eyebrow" id="studio-card-eyebrow"></span>
+          <div class="studio-card-content" id="studio-card-content"></div>
+        </div>
+      </div>
+      <div class="studio-controls">
+        <p id="studio-help">Click to walk · Select an object</p>
+        <div class="studio-actions" role="group" aria-label="Study objects">
+          <button type="button" data-studio-action="news" disabled>Newspaper</button>
+          <button type="button" data-studio-action="books" disabled>Bookshelf</button>
+          <button type="button" data-studio-action="lamp" disabled>Lamp</button>
+        </div>
+      </div>
+      <span class="studio-sr-only" id="studio-status" role="status" aria-live="polite"></span>
+    </div>
+    <noscript><p class="studio-noscript">Enable JavaScript to explore the interactive study.</p></noscript>
+  </div>
+</div>
+<div id="studio-content-data" hidden>
+  <div id="studio-publication-data">
+    {% for publication in site.data.publications.main %}{% if publication.pdf %}
+    <div data-studio-publication data-title="{{ publication.title | escape }}" data-venue="{{ publication.conference_short | escape }}" data-description="{{ publication.conference | strip_html | escape }}" data-href="#publication-{{ publication.title | slugify }}">
+    </div>
+    {% endif %}{% endfor %}
+  </div>
+  <ul id="studio-news-data">
+    {% for item in site.data.news.main %}
+    <li data-news-date="{{ item.date | escape }}"><span class="studio-news-date">{{ item.date }}</span><div class="studio-news-copy">{{ item.content }}</div></li>
+    {% endfor %}
+  </ul>
+</div>

@@ -1,5 +1,45 @@
 # The Minimal Light Theme
 
+## Interactive motion studio
+
+The homepage includes **3D Interaction**, a collapsible Three.js study below About Me.
+Click the floor to walk or the lamp to change the page theme on contact.
+Select the door in the scene to walk over, open it, and step outside;
+the study folds only after the avatar leaves. Reopening returns the avatar inside.
+The bookshelf contains one selectable book per publication;
+each opens its paper details and an optional link to that publication on the page. The newspaper on the desk
+shows the same News entries as the page. Compact buttons offer Newspaper,
+Bookshelf, and Lamp interactions from a keyboard or touch screen. Folding animates the study into
+a small icon aligned to the left; the last open/closed state is remembered.
+
+The avatar references `assets/img/avatar.jpg`. Its poses are authored locally;
+the studio does not run research models or send the portrait to a remote service.
+Three.js **0.180.0** is vendored in `assets/js/vendor/` with its MIT license, so
+opening the scene does not depend on an external CDN. The source files come from
+the `three@0.180.0` npm package (`build/three.module.min.js`,
+`build/three.core.min.js`, and `LICENSE`).
+
+For a local interaction preview with Node.js 22 or newer:
+
+```sh
+npm ci
+npm run preview
+```
+
+Open `http://127.0.0.1:4173`. This development preview renders the site's
+Markdown, Liquid, YAML, and Sass; production deployment continues to use Jekyll.
+To run navigation and browser checks, install Playwright's Chromium once with
+`npx playwright install chromium`, then run `npm test`.
+
+Scene geometry, avatar poses, navigation, and interaction behavior live in
+`assets/js/studio/`. The HTML component is `_includes/studio.html`, with its
+layout in `assets/css/studio.css`. The preview tools and tests are excluded from
+the published Jekyll site.
+
+Publications and their shelf books share `_data/publications.yml`. News in the
+page and newspaper shares `_data/news.yml` (`date` and HTML `content` fields).
+Update these data files to keep the scene and page content in sync.
+
 [![LICENSE](https://img.shields.io/github/license/yaoyao-liu/minimal-light?style=flat-square&logo=creative-commons&color=EF9421)](https://github.com/yaoyao-liu/minimal-light/blob/main/LICENSE)
 
 \[[Demo the theme](https://minimal-light-theme.yliu.me/)\]  \[[简体中文](https://github.com/yaoyao-liu/minimal-light/blob/master/README_zh_Hans.md) | [繁體中文](https://github.com/yaoyao-liu/minimal-light/blob/master/README_zh_Hant.md) | [Deutsche](https://github.com/yaoyao-liu/minimal-light/blob/master/README_de.md)\]

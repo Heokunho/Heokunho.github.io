@@ -3,6 +3,12 @@
 
 @import "minimal-light";
 
+@media screen and (min-width: 961px) {
+  .wrapper > section > #about-me:first-child {
+    margin-top: 16px;
+  }
+}
+
 .profile {
   display: flex; 
   flex-direction: column; 

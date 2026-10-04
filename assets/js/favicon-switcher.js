@@ -1,64 +1,32 @@
-;(function(mod){
-function collectLinks() {
-  return Array.prototype.slice.apply(
-    document.head.querySelectorAll('link[rel*="icon"]')
-  )
-}
+(function () {
+  'use strict';
 
-function applyLink(source, target) {
-  target.setAttribute('type', source.getAttribute('type'))
-  target.setAttribute('href', source.getAttribute('href'))
-}
+  // Leave the source links in place for browsers with JavaScript disabled.
+  var links = Array.prototype.slice.call(
+    document.head.querySelectorAll('link[rel~="icon"][media]')
+  );
+  var sources = links.map(function (link) {
+    return {
+      link: link,
+      theme: /prefers-color-scheme\s*:\s*dark/.test(link.media) ? 'dark' : 'light'
+    };
+  });
+  var media = typeof window.matchMedia === 'function'
+    ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
-// eslint-disable-next-line no-unused-vars
-function initSwitcher(delay) {
-  // Exit if media queries aren't supported
-  if (typeof window.matchMedia !== 'function') {
-    return function noop() {}
+  function update() {
+    var theme = document.documentElement.getAttribute('data-theme') ||
+      (media && media.matches ? 'dark' : 'light');
+    sources.forEach(function (source) {
+      // The explicit theme takes precedence over the operating system query.
+      source.link.media = source.theme === theme ? 'all' : 'not all';
+    });
   }
 
-  var links = collectLinks()
-  var current = document.createElement('link')
-  var prevMatch
-
-  current.setAttribute('rel', 'shortcut icon')
-  document.head.appendChild(current)
-
-  function faviconApplyLoop() {
-    var matched
-
-    links.forEach(function(link) {
-      if (window.matchMedia(link.media).matches) {
-        matched = link
-      }
-    })
-
-    if (! matched) {
-      return
-    }
-
-    if (matched.media !== prevMatch) {
-      prevMatch = matched.media
-      applyLink(matched, current)
-    }
+  window.addEventListener('site-theme-change', update);
+  if (media) {
+    if (media.addEventListener) media.addEventListener('change', update);
+    else if (media.addListener) media.addListener(update);
   }
-
-  var intervalId = setInterval(faviconApplyLoop, delay || 300)
-
-  function unsubscribe() {
-    clearInterval(intervalId)
-    links.forEach(function(link) {
-      document.head.appendChild(link)
-    })
-  }
-
-  faviconApplyLoop()
-  links.forEach(function(link) {
-    document.head.removeChild(link)
-  })
-
-  return unsubscribe
-}
-
-initSwitcher()
-})()
+  update();
+}());

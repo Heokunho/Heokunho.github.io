@@ -1,0 +1,11 @@
+main:
+  - date: 'Sep. 2026'
+    content: '<b><span class="news-highlight">One</span></b> <b>paper</b> got accepted at <b>NeurIPS 2026</b>.'
+  - date: 'Jun. 2026'
+    content: '<b><span class="news-highlight">One</span></b> <b>paper</b> got accepted at <b>ECCV 2026</b>.'
+  - date: 'Feb. 2026'
+    content: '<b><span class="news-highlight">One</span></b> <b>paper</b> got accepted at <b>CVPR 2026</b>.'
+  - date: 'Sep. 2025'
+    content: '<b><span class="news-highlight">One</span></b> <b>paper</b> got accepted at <b>NeurIPS 2025</b>.'
+  - date: 'Mar. 2025'
+    content: 'Joined as an M.S. student at <b><a href="https://vslab.khu.ac.kr/">Visual Science Lab</a></b>, Kyung Hee University.'

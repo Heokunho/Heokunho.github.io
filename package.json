@@ -1,0 +1,22 @@
+{
+  "name": "kunho-homepage-preview",
+  "private": true,
+  "type": "module",
+  "description": "Local preview and browser checks for the Jekyll homepage",
+  "scripts": {
+    "preview": "node tools/preview.mjs",
+    "test": "npm run test:unit && npm run test:browser",
+    "test:unit": "node --test tests/navigation.test.mjs",
+    "test:browser": "playwright test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "liquidjs": "10.30.0",
+    "markdown-it": "15.0.2",
+    "sass": "1.105.1",
+    "yaml": "2.9.1"
+  }
+}
