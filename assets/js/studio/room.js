@@ -12,6 +12,10 @@ export function createRoom({ publications = [], news = [] } = {}) {
   const lightGround = new THREE.Color('#aa9780');
   const darkGround = new THREE.Color('#344558');
   const geometryCache = new Map();
+  const highlights = new Map();
+  const highlightLight = new THREE.Color('#329eac');
+  const highlightDark = new THREE.Color('#bedfc8');
+  const highlightColor = highlightLight.clone();
   let illumination = 1;
   let targetIllumination = 1;
   let newspaperOpen = 0;
@@ -199,7 +203,7 @@ export function createRoom({ publications = [], news = [] } = {}) {
         label.castShadow = false;
       }
     }
-    interactive(volume, `publication:${index}`);
+    interactive(volume, 'books');
     publicationBooks.push({ root: volume, restZ: volume.position.z, selected: 0, target: 0 });
   }
 
@@ -383,6 +387,23 @@ export function createRoom({ publications = [], news = [] } = {}) {
   sunlight.shadow.radius = 3;
   root.add(sunlight);
 
+  function addHighlight(group, name) {
+    const meshes = [];
+    // Keep the original meshes for the silhouette pass so animated door leaves
+    // and paper folds retain their current transforms without extra geometry.
+    group.traverse((object) => {
+      if (object.isMesh && object !== doorstep && !object.material.transparent) {
+        meshes.push(object);
+      }
+    });
+    highlights.set(name, { meshes, amount: 0, target: 0 });
+  }
+
+  addHighlight(shelf, 'books');
+  addHighlight(newspaper, 'news');
+  addHighlight(lamp, 'lamp');
+  addHighlight(door, 'door');
+
   function applyLighting() {
     for (const entry of themeMaterials) {
       colorTarget.copy(entry.dark).lerp(entry.light, illumination);
@@ -395,6 +416,7 @@ export function createRoom({ publications = [], news = [] } = {}) {
     lampLight.intensity = illumination * 2.3;
     lampInner.emissiveIntensity = illumination * 0.6;
     lampPool.material.opacity = illumination * 0.065;
+    highlightColor.copy(highlightDark).lerp(highlightLight, illumination);
   }
 
   const obstacles = [
@@ -426,13 +448,19 @@ export function createRoom({ publications = [], news = [] } = {}) {
 
   applyLighting();
   return {
-    root, floor, pickables, obstacles, targets,
+    root, floor, pickables, obstacles, targets, highlights, highlightColor,
     bounds: { minX: -2.8, maxX: 2.8, minZ: -1.7, maxZ: 1.7 },
     setTheme(theme, immediate = false) {
       targetIllumination = theme === 'dark' ? 0 : 1;
       if (immediate) {
         illumination = targetIllumination;
         applyLighting();
+      }
+    },
+    setHighlight(name, immediate = false) {
+      for (const [key, entry] of highlights) {
+        entry.target = name === key ? 1 : 0;
+        if (immediate) entry.amount = entry.target;
       }
     },
     setInteraction(name, active = true) {
@@ -452,6 +480,12 @@ export function createRoom({ publications = [], news = [] } = {}) {
     },
     update(dt) {
       const blend = 1 - Math.exp(-Math.min(dt, 0.1) * 7);
+      const highlightBlend = 1 - Math.exp(-Math.min(dt, 0.1) * 20);
+      for (const entry of highlights.values()) {
+        if (entry.amount === entry.target) continue;
+        entry.amount = THREE.MathUtils.lerp(entry.amount, entry.target, highlightBlend);
+        if (Math.abs(entry.amount - entry.target) < 0.001) entry.amount = entry.target;
+      }
       if (Math.abs(targetIllumination - illumination) > 0.0001) {
         illumination = THREE.MathUtils.lerp(illumination, targetIllumination, blend);
         applyLighting();

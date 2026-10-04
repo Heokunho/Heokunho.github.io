@@ -6,10 +6,11 @@ The homepage includes **3D Interaction**, a collapsible Three.js study below Abo
 Click the floor to walk or the lamp to change the page theme on contact.
 Select the door in the scene to walk over, open it, and step outside;
 the study folds only after the avatar leaves. Reopening returns the avatar inside.
-The bookshelf contains one selectable book per publication;
-each opens its paper details and an optional link to that publication on the page. The newspaper on the desk
+The bookshelf contains one book per publication and is selected as a whole.
+Choose a paper from its list to see details and an optional link to that publication on the page. The newspaper on the desk
 shows the same News entries as the page. Click or tap objects directly in the
-scene to interact with them. Folding animates the study into
+scene to interact with them. Objects receive a soft glow around their silhouette while hovered on desktop
+or briefly after a tap on touch screens. Folding animates the study into
 a small icon aligned to the left; the study starts folded on each visit.
 
 The avatar references `assets/img/avatar.jpg`. Its poses are authored locally;

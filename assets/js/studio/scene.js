@@ -2,6 +2,7 @@ import * as THREE from '../vendor/three.module.min.js';
 import { createAvatar, AVATAR_RADIUS } from './avatar.js';
 import { createRoom } from './room.js';
 import { createNavigator } from './navigation.js';
+import { createHighlightGlow } from './glow.js';
 
 const clamp = THREE.MathUtils.clamp;
 const lerp = THREE.MathUtils.lerp;
@@ -45,6 +46,7 @@ export function createStudio(canvas, callbacks = {}, content = {}) {
   marker.rotation.x = -Math.PI / 2;
   marker.position.y = 0.023;
   scene.add(marker);
+  const glow = createHighlightGlow(renderer, scene, camera, room);
 
   let active = false;
   let paused = false;
@@ -64,6 +66,7 @@ export function createStudio(canvas, callbacks = {}, content = {}) {
   let markerLife = 0;
   let nextWander = 12;
   let pointerDown = null;
+  let touchHighlightUntil = 0;
   let contextLost = false;
 
   function status(message) { callbacks.onStatus?.(message); }
@@ -87,11 +90,15 @@ export function createStudio(canvas, callbacks = {}, content = {}) {
     camera.bottom = -visibleHeight / 2;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height, false);
+    glow.setSize(width, height);
     render();
   }
 
   function render() {
-    if (!disposed && !contextLost) renderer.render(scene, camera);
+    if (!disposed && !contextLost) {
+      renderer.render(scene, camera);
+      glow.render();
+    }
   }
 
   function turnTo(yaw, dt) {
@@ -175,32 +182,60 @@ export function createStudio(canvas, callbacks = {}, content = {}) {
 
   function onPointerDown(event) {
     if (event.button !== 0 || !event.isPrimary) return;
-    pointerDown = { x: event.clientX, y: event.clientY };
+    pointerDown = { id: event.pointerId, x: event.clientX, y: event.clientY, dragged: false };
+    if (event.pointerType === 'touch') clearHover(true);
   }
 
   function onPointerUp(event) {
-    if (!pointerDown) return;
+    if (!pointerDown || event.pointerId !== pointerDown.id) return;
     const moved = Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y);
+    const dragged = pointerDown.dragged;
     pointerDown = null;
-    if (moved > 7) return; // A swipe belongs to page scrolling.
+    if (dragged || moved > 7) return; // A swipe belongs to page scrolling.
     callbacks.onUserAction?.();
     const result = pick(event);
-    if (result?.name) interact(result.name);
-    else if (result?.hit.object === room.floor && result.hit.face?.normal.y > 0.5) command(result.hit.point);
+    if (result?.name) {
+      if (event.pointerType === 'touch') {
+        touchHighlightUntil = performance.now() + 1600;
+        room.setHighlight(result.name, reducedMotion.matches);
+      }
+      interact(result.name);
+    } else {
+      clearHover(true);
+      if (result?.hit.object === room.floor && result.hit.face?.normal.y > 0.5) command(result.hit.point);
+    }
   }
 
   function onPointerMove(event) {
+    if (pointerDown?.id === event.pointerId && Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y) > 7) {
+      pointerDown.dragged = true;
+    }
     if (event.pointerType === 'touch') return;
+    touchHighlightUntil = 0;
     const result = pick(event);
     if (result?.name) {
       canvas.dataset.hover = result.name;
+      room.setHighlight(result.name, reducedMotion.matches);
       callbacks.onHover?.({ label: hoverLabel(result.name), x: result.x, y: result.y });
     } else clearHover();
   }
 
-  function clearHover() {
+  function clearHover(immediate = reducedMotion.matches) {
     delete canvas.dataset.hover;
     callbacks.onHover?.(null);
+    touchHighlightUntil = 0;
+    room.setHighlight(null, immediate);
+  }
+
+  function onPointerLeave(event) {
+    pointerDown = null;
+    // Touch completion also emits pointerleave; keep its brief tap feedback.
+    if (event.pointerType !== 'touch') clearHover();
+  }
+
+  function cancelPointer() {
+    pointerDown = null;
+    clearHover(true);
   }
 
   function onKeyDown(event) {
@@ -320,6 +355,7 @@ export function createStudio(canvas, callbacks = {}, content = {}) {
     // Cap rendering at 30fps; skip simulation altogether while paused.
     if (now - lastFrame >= 1000 / 30 - 1) {
       lastFrame = now;
+      if (touchHighlightUntil && now >= touchHighlightUntil) clearHover();
       if (!paused) step(dt);
       else room.update(dt, time); // A direct theme change still updates the lamp.
       render();
@@ -335,7 +371,10 @@ export function createStudio(canvas, callbacks = {}, content = {}) {
       lastFrame = performance.now();
       resize();
       frame = requestAnimationFrame(tick);
-    } else clearHover();
+    } else {
+      pointerDown = null;
+      clearHover(true);
+    }
   }
 
   function onContextLost(event) {
@@ -348,8 +387,7 @@ export function createStudio(canvas, callbacks = {}, content = {}) {
   canvas.addEventListener('pointerdown', onPointerDown);
   canvas.addEventListener('pointerup', onPointerUp);
   canvas.addEventListener('pointermove', onPointerMove);
-  canvas.addEventListener('pointerleave', clearHover);
-  const cancelPointer = () => { pointerDown = null; };
+  canvas.addEventListener('pointerleave', onPointerLeave);
   canvas.addEventListener('pointercancel', cancelPointer);
   canvas.addEventListener('keydown', onKeyDown);
   canvas.addEventListener('webglcontextlost', onContextLost);
@@ -370,7 +408,7 @@ export function createStudio(canvas, callbacks = {}, content = {}) {
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointerup', onPointerUp);
       canvas.removeEventListener('pointermove', onPointerMove);
-      canvas.removeEventListener('pointerleave', clearHover);
+      canvas.removeEventListener('pointerleave', onPointerLeave);
       canvas.removeEventListener('pointercancel', cancelPointer);
       canvas.removeEventListener('keydown', onKeyDown);
       canvas.removeEventListener('webglcontextlost', onContextLost);
@@ -388,6 +426,7 @@ export function createStudio(canvas, callbacks = {}, content = {}) {
         item.dispose();
       });
       textures.forEach((item) => item.dispose());
+      glow.dispose();
       renderer.dispose();
     },
   };

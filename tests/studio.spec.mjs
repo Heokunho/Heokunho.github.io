@@ -112,7 +112,7 @@ test('lamp theme changes on contact, with motion suspended while folded', async 
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light', { timeout: 10000 });
 });
 
-test('each book opens its publication and only the chosen link navigates', async ({ page }) => {
+test('the bookshelf lists publications and only the chosen paper link navigates', async ({ page }) => {
   await ready(page);
   const position = await page.evaluate(() => window.scrollY);
   const publications = await page.locator('[data-studio-publication]').evaluateAll(entries => entries.map(entry => ({
@@ -121,6 +121,7 @@ test('each book opens its publication and only the chosen link navigates', async
   await clickWorldPoint(page, -2.50, 1.54, 0.40);
   await expect(page.locator('#studio-book-card')).toBeVisible({ timeout: 15000 });
   await expect(page.locator('.studio-book-list button')).toHaveCount(publications.length);
+  await expect(page.locator('#studio-card-eyebrow')).toHaveText(`Publications · ${publications.length} Papers`);
   for (let index = 0; index < publications.length; index++) {
     await expect(page.locator(`[data-publication-index="${index}"]`)).toContainText(publications[index].title);
   }

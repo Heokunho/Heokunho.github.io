@@ -70,13 +70,15 @@ async function objectPoint(page, name, publicationIndex, localPoint) {
       if (name === 'door' && node.name === 'Exit door') target = node;
       if (name === 'lamp' && node.name === 'Theme lamp') target = node;
     });
-    const point = name === 'book'
-      ? target.children.find(node => node.geometry?.type === 'PlaneGeometry').getWorldPosition(new THREE.Vector3())
-      : name === 'door'
-        ? target.localToWorld(new THREE.Vector3(...(localPoint || [0, 1.15, -0.04])))
-        : name === 'lamp'
-          ? target.localToWorld(new THREE.Vector3(-0.20, 1.72, 0))
-          : target.localToWorld(new THREE.Vector3(-0.15, 0.015, 0));
+    const point = name === 'floor'
+      ? new THREE.Vector3(...(localPoint || [1.3, 0, 1.1]))
+      : name === 'book'
+        ? target.children.find(node => node.geometry?.type === 'PlaneGeometry').getWorldPosition(new THREE.Vector3())
+        : name === 'door'
+          ? target.localToWorld(new THREE.Vector3(...(localPoint || [0, 1.15, -0.04])))
+          : name === 'lamp'
+            ? target.localToWorld(new THREE.Vector3(-0.20, 1.72, 0))
+            : target.localToWorld(new THREE.Vector3(-0.15, 0.015, 0));
     const rect = document.getElementById('studio-canvas').getBoundingClientRect();
     const aspect = rect.width / rect.height;
     const height = Math.max(4.25, 7.8 / aspect);
@@ -88,6 +90,207 @@ async function objectPoint(page, name, publicationIndex, localPoint) {
     return { x: rect.left + (point.x + 1) * rect.width / 2, y: rect.top + (1 - point.y) * rect.height / 2 };
   }, { name, publicationIndex, localPoint });
 }
+
+async function highlightedObjects(page) {
+  return page.evaluate(() => [...window.__studioRoom.highlights]
+    .filter(([, entry]) => entry.amount > 0.001 && entry.meshes.some(node => {
+      if (!node.geometry?.attributes.position.count) return false;
+      for (let ancestor = node; ancestor; ancestor = ancestor.parent) {
+        if (!ancestor.visible) return false;
+      }
+      return true;
+    }))
+    .map(([name]) => name).sort());
+}
+
+async function originalSurfaceColors(page) {
+  return page.evaluate(() => {
+    const materials = new Map();
+    window.__studioRoom.root.traverse(node => {
+      const material = node.material;
+      if (!material || material.name.includes(' highlight ')) return;
+      materials.set(material.uuid, {
+        color: material.color?.getHexString(),
+        emissive: material.emissive?.getHexString(),
+        emissiveIntensity: material.emissiveIntensity,
+      });
+    });
+    return Object.fromEntries(materials);
+  });
+}
+
+test('desktop hover highlights only the pointed object in both themes and clears on leave or fold', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'light' });
+  await observeRoom(page);
+  const hardOutlines = await page.evaluate(() => {
+    const names = [];
+    window.__studioRoom.root.traverse(node => {
+      if (node.isLineSegments && /highlight/i.test(node.name)) names.push(node.name);
+    });
+    return names;
+  });
+  expect(hardOutlines).toEqual([]);
+  for (const theme of ['light', 'dark']) {
+    if (theme === 'dark') {
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      await page.locator('#studio-theme').click();
+    }
+    await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+    const surfaces = await originalSurfaceColors(page);
+    for (const [name, expected] of [['book', 'books'], ['lamp', 'lamp'], ['news', 'news'], ['door', 'door']]) {
+      const point = await objectPoint(page, name, 0);
+      await page.mouse.move(point.x, point.y);
+      await expect(page.locator('#studio-canvas')).toHaveAttribute('data-hover', expected);
+      await expect.poll(() => highlightedObjects(page)).toEqual([expected]);
+      expect(await originalSurfaceColors(page)).toEqual(surfaces);
+    }
+    await page.mouse.move(0, 0);
+    await expect.poll(() => highlightedObjects(page)).toEqual([]);
+  }
+  const lamp = await objectPoint(page, 'lamp');
+  await page.mouse.move(lamp.x, lamp.y);
+  await expect.poll(() => highlightedObjects(page)).toEqual(['lamp']);
+  await page.evaluate(() => document.getElementById('studio-toggle').click());
+  await expect(page.locator('#studio-panel')).toBeHidden();
+  expect(await highlightedObjects(page)).toEqual([]);
+  await page.locator('#studio-toggle').click();
+  await expect(page.locator('#studio-panel')).toBeVisible();
+  expect(await highlightedObjects(page)).toEqual([]);
+});
+
+test('the selected object casts a soft halo beyond its silhouette', async ({ page }, testInfo) => {
+  await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
+  await observeRoom(page);
+  await page.addStyleTag({ content: '#studio-hover { visibility: hidden !important; }' });
+  const point = await objectPoint(page, 'lamp');
+  await page.mouse.move(0, 0);
+  const canvas = page.locator('#studio-canvas');
+  const bounds = await page.evaluate(async () => {
+    const THREE = await import('/assets/js/vendor/three.module.min.js');
+    const room = window.__studioRoom;
+    room.root.updateMatrixWorld(true);
+    const { width, height } = document.getElementById('studio-canvas').getBoundingClientRect();
+    const aspect = width / height;
+    const span = Math.max(4.25, 7.8 / aspect);
+    const camera = new THREE.OrthographicCamera(-span * aspect / 2, span * aspect / 2, span / 2, -span / 2, 0.1, 50);
+    camera.position.set(6.3, 7, 10);
+    camera.lookAt(0, 0.25, 0);
+    camera.updateMatrixWorld();
+    const bounds = { minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity };
+    const vertex = new THREE.Vector3();
+    for (const mesh of room.highlights.get('lamp').meshes) {
+      const positions = mesh.geometry.attributes.position;
+      for (let index = 0; index < positions.count; index++) {
+        vertex.fromBufferAttribute(positions, index).applyMatrix4(mesh.matrixWorld).project(camera);
+        const x = (vertex.x + 1) * width / 2;
+        const y = (1 - vertex.y) * height / 2;
+        bounds.minX = Math.min(bounds.minX, x);
+        bounds.maxX = Math.max(bounds.maxX, x);
+        bounds.minY = Math.min(bounds.minY, y);
+        bounds.maxY = Math.max(bounds.maxY, y);
+      }
+    }
+    return bounds;
+  });
+  const before = await canvas.screenshot({ scale: 'css' });
+  await page.mouse.move(point.x, point.y);
+  await expect.poll(() => highlightedObjects(page)).toEqual(['lamp']);
+  const after = await canvas.screenshot({ scale: 'css' });
+  await testInfo.attach('lamp-halo', { body: after, contentType: 'image/png' });
+  const pixels = await page.evaluate(async ({ before, after, bounds }) => {
+    async function decode(base64) {
+      const image = new Image();
+      image.src = 'data:image/png;base64,' + base64;
+      await image.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = image.width;
+      canvas.height = image.height;
+      const context = canvas.getContext('2d');
+      context.drawImage(image, 0, 0);
+      return context.getImageData(0, 0, canvas.width, canvas.height);
+    }
+    const [plain, highlighted] = await Promise.all([decode(before), decode(after)]);
+    const peaks = [0, 0, 0];
+    const levels = new Set();
+    let exteriorPixels = 0;
+    for (let y = Math.max(0, Math.floor(bounds.minY - 12)); y < Math.min(plain.height, Math.ceil(bounds.maxY + 12)); y++) {
+      for (let x = Math.max(0, Math.floor(bounds.minX - 12)); x < Math.min(plain.width, Math.ceil(bounds.maxX + 12)); x++) {
+        const distance = Math.max(bounds.minX - x, x - bounds.maxX, bounds.minY - y, y - bounds.maxY);
+        if (distance < 1 || distance >= 12) continue;
+        const offset = (y * plain.width + x) * 4;
+        const delta = Math.max(...[0, 1, 2].map(channel => Math.abs(plain.data[offset + channel] - highlighted.data[offset + channel])));
+        const band = distance < 3 ? 0 : distance < 6 ? 1 : 2;
+        peaks[band] = Math.max(peaks[band], delta);
+        if (delta > 0) {
+          exteriorPixels++;
+          levels.add(delta);
+        }
+      }
+    }
+    return { peaks, exteriorPixels, levels: levels.size };
+  }, { before: before.toString('base64'), after: after.toString('base64'), bounds });
+  // A frame or surface tint cannot change pixels this far outside the geometry.
+  expect(pixels.exteriorPixels).toBeGreaterThan(10);
+  expect(pixels.peaks[0]).toBeGreaterThan(2);
+  expect(pixels.peaks[1]).toBeGreaterThan(0);
+  expect(pixels.peaks[0]).toBeGreaterThan(pixels.peaks[2]);
+  expect(pixels.levels).toBeGreaterThanOrEqual(3);
+});
+
+test('mobile taps briefly highlight objects while floor taps, swipes, cancellation and folding clear feedback', async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: 'reduce',
+  });
+  const page = await context.newPage();
+  try {
+    await observeRoom(page);
+    const lamp = await objectPoint(page, 'lamp');
+    await page.touchscreen.tap(lamp.x, lamp.y);
+    expect(await highlightedObjects(page)).toEqual(['lamp']);
+    await expect(page.locator('#studio-hover')).toBeHidden();
+    // Real touch completion dispatches pointerleave: the tap feedback must survive it.
+    await page.waitForTimeout(200);
+    expect(await highlightedObjects(page)).toEqual(['lamp']);
+    const book = await objectPoint(page, 'book', 0);
+    await page.touchscreen.tap(book.x, book.y);
+    expect(await highlightedObjects(page)).toEqual(['books']);
+    const floor = await objectPoint(page, 'floor');
+    await page.touchscreen.tap(floor.x, floor.y);
+    expect(await highlightedObjects(page)).toEqual([]);
+    await expect(page.locator('#studio-status')).toHaveText('Walking to the selected spot.');
+
+    const canvas = page.locator('#studio-canvas');
+    const touch = { pointerType: 'touch', pointerId: 10, isPrimary: true, button: 0, clientX: lamp.x, clientY: lamp.y };
+    // End the swipe on the lamp so a mistaken click would visibly select it.
+    await canvas.dispatchEvent('pointerdown', { ...touch, clientY: touch.clientY - 30 });
+    await canvas.dispatchEvent('pointermove', touch);
+    await canvas.dispatchEvent('pointerup', touch);
+    expect(await highlightedObjects(page)).toEqual([]);
+    await canvas.dispatchEvent('pointerdown', touch);
+    await canvas.dispatchEvent('pointercancel', touch);
+    await canvas.dispatchEvent('pointerup', touch);
+    expect(await highlightedObjects(page)).toEqual([]);
+    await expect(page.locator('#studio-status')).not.toHaveText('Walking to the lamp.');
+
+    await page.touchscreen.tap(book.x, book.y);
+    expect(await highlightedObjects(page)).toEqual(['books']);
+    await expect.poll(() => highlightedObjects(page), { timeout: 3000 }).toEqual([]);
+    await page.touchscreen.tap(lamp.x, lamp.y);
+    expect(await highlightedObjects(page)).toEqual(['lamp']);
+    await canvas.dispatchEvent('pointercancel', touch);
+    expect(await highlightedObjects(page)).toEqual([]);
+    await page.touchscreen.tap(book.x, book.y);
+    expect(await highlightedObjects(page)).toEqual(['books']);
+    await page.locator('#studio-toggle').tap();
+    await expect(page.locator('#studio-panel')).toBeHidden();
+    expect(await highlightedObjects(page)).toEqual([]);
+    await page.locator('#studio-toggle').tap();
+    await expect(page.locator('#studio-panel')).toBeVisible();
+    expect(await highlightedObjects(page)).toEqual([]);
+  } finally {
+    await context.close();
+  }
+});
 
 for (const width of [1280, 390]) {
   test(`Door tooltip follows the cursor and stays inside the scene at ${width}px`, async ({ page }) => {
@@ -120,7 +323,7 @@ for (const width of [1280, 390]) {
   });
 }
 
-test('shelf contains one pickable volume per publication and spines select the exact paper', async ({ page }) => {
+test('book spines all select the bookshelf and papers are chosen from its list', async ({ page }) => {
   await observeRoom(page);
   const content = await page.evaluate(() => {
     const books = [];
@@ -134,12 +337,17 @@ test('shelf contains one pickable volume per publication and spines select the e
   for (let index = 0; index < count; index++) {
     const point = await objectPoint(page, 'book', index);
     await page.mouse.move(point.x, point.y);
-    await expect(page.locator('#studio-canvas')).toHaveAttribute('data-hover', `publication:${index}`);
-    await expect(page.locator('#studio-hover')).toContainText(content.publications[index].title.slice(0, 45));
+    await expect(page.locator('#studio-canvas')).toHaveAttribute('data-hover', 'books');
+    await expect(page.locator('#studio-hover')).toHaveText('Bookshelf · publications');
   }
   const point = await objectPoint(page, 'book', 2);
   await page.mouse.click(point.x, point.y);
   await expect(page.locator('#studio-book-card')).toBeHidden();
+  await expect(page.locator('#studio-book-card')).toHaveAttribute('data-reading', 'books', { timeout: 15000 });
+  await expect(page.locator('#studio-card-eyebrow')).toHaveText(`Publications · ${count} Papers`);
+  await expect(page.locator('.studio-book-list button')).toHaveText(content.publications.map((publication, index) =>
+    `${String(index + 1).padStart(2, '0')}${publication.title}`));
+  await page.locator('[data-publication-index="2"]').click();
   await expect(page.locator('#studio-book-card')).toHaveAttribute('data-reading', 'publication:2', { timeout: 15000 });
   await expect(page.locator('.studio-publication-title')).toHaveText(content.publications[2].title);
   expect(new URL(page.url()).hash).toBe('');

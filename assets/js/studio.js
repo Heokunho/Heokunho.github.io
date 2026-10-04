@@ -78,7 +78,7 @@
     cardContent.replaceChildren();
     cardContent.scrollTop = 0;
     if (name === 'books') {
-      cardEyebrow.textContent = 'Publications · ' + publications.length + ' books';
+      cardEyebrow.textContent = 'Publications · ' + publications.length + (publications.length === 1 ? ' Paper' : ' Papers');
       var list = document.createElement('ol');
       list.className = 'studio-book-list';
       publications.forEach(function (publication, index) {
