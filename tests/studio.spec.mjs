@@ -2,6 +2,9 @@ import { test, expect } from '@playwright/test';
 
 async function ready(page) {
   await page.goto('/');
+  if (await page.locator('#studio-toggle').getAttribute('aria-expanded') === 'false') {
+    await page.locator('#studio-toggle').click();
+  }
   await expect(page.locator('#motion-studio')).toHaveAttribute('data-ready', 'true');
 }
 
@@ -21,11 +24,19 @@ async function clickWorldPoint(page, x, y, z) {
   await page.mouse.click(point.x, point.y);
 }
 
-test('desktop opens below About Me; left-aligned fold and manual theme survive reload', async ({ page }) => {
+test('desktop starts folded below About Me on every load while manual theme survives reload', async ({ page }) => {
   const errors = [];
+  const requests = [];
   page.on('pageerror', error => errors.push(error.message));
+  page.on('request', request => requests.push(request.url()));
+  await page.addInitScript(() => localStorage.setItem('kunho-studio-open', 'true'));
   await page.emulateMedia({ colorScheme: 'light' });
-  await ready(page);
+  await page.goto('/');
+  await expect(page.locator('#studio-toggle')).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('#studio-panel')).toBeHidden();
+  expect(requests.some(url => url.includes('/studio/scene.js') || url.includes('/vendor/three'))).toBe(false);
+  await page.locator('#studio-toggle').click();
+  await expect(page.locator('#motion-studio')).toHaveAttribute('data-ready', 'true');
   await expect(page.locator('#studio-toggle')).toHaveAttribute('aria-expanded', 'true');
   const studio = await page.locator('#motion-studio').boundingBox();
   const about = await page.getByRole('heading', { name: 'About Me', exact: true }).boundingBox();
@@ -60,6 +71,9 @@ test('desktop opens below About Me; left-aligned fold and manual theme survive r
   await expect(page.getByText('3D Interaction', { exact: true })).toBeVisible();
   await page.locator('#studio-theme').click();
   await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await page.reload();
+  await expect(page.locator('#studio-toggle')).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.locator('#studio-panel')).toBeHidden();
   expect(errors).toEqual([]);
 });
 
@@ -231,6 +245,7 @@ test('WebGL failure preserves the page and direct theme/publication controls', a
     };
   });
   await page.goto('/');
+  await page.locator('#studio-toggle').click();
   await expect(page.locator('#studio-fallback')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'About Me', exact: true })).toBeVisible();
   await expect(page.locator('#studio-fallback a')).toHaveAttribute('href', '#publications');

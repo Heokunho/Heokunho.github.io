@@ -10,7 +10,7 @@ The bookshelf contains one selectable book per publication;
 each opens its paper details and an optional link to that publication on the page. The newspaper on the desk
 shows the same News entries as the page. Compact buttons offer Newspaper,
 Bookshelf, and Lamp interactions from a keyboard or touch screen. Folding animates the study into
-a small icon aligned to the left; the last open/closed state is remembered.
+a small icon aligned to the left; the study starts folded on each visit.
 
 The avatar references `assets/img/avatar.jpg`. Its poses are authored locally;
 the studio does not run research models or send the portrait to a remote service.

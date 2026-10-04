@@ -17,7 +17,7 @@
   var themeButton = document.getElementById('studio-theme');
   var actions = container.querySelectorAll('[data-studio-action]');
   var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var open = !window.matchMedia('(max-width: 600px)').matches;
+  var open = false;
   var visible = true;
   var studio = null;
   var pending = null;
@@ -36,11 +36,6 @@
   var news = Array.from(newsSource.children).map(function (item) {
     return { date: item.dataset.newsDate, text: item.querySelector('.studio-news-copy').textContent.trim() };
   });
-
-  try {
-    var preference = localStorage.getItem('kunho-studio-open');
-    if (preference === 'true' || preference === 'false') open = preference === 'true';
-  } catch (error) { /* Expansion works when storage is unavailable. */ }
 
   function status(message) { document.getElementById('studio-status').textContent = message; }
   function syncActivity() { if (studio) studio.setActive(open && visible && !document.hidden); }
@@ -159,7 +154,7 @@
         },
         onExit: function () {
           status('3D Interaction closed. Open it to explore again.');
-          setOpen(false, true, true);
+          setOpen(false, true);
           toggle.focus({ preventScroll: true });
         },
         onBooksClose: function () { card.hidden = true; },
@@ -193,7 +188,7 @@
     panel.style.width = Math.max(0, shell.clientWidth - 2) + 'px';
     if (!panel.hidden) container.style.setProperty('--studio-expanded-height', (panel.scrollHeight + 2) + 'px');
   }
-  function setOpen(value, remember, animate) {
+  function setOpen(value, animate) {
     var previousRect = container.getBoundingClientRect();
     if (foldAnimation) { foldAnimation.cancel(); foldAnimation = null; }
     open = value;
@@ -212,9 +207,6 @@
     toggle.setAttribute('aria-label', label);
     toggle.title = label;
     themeButton.hidden = !value;
-    if (remember) {
-      try { localStorage.setItem('kunho-studio-open', String(value)); } catch (error) { /* Optional persistence. */ }
-    }
     var targetRect = container.getBoundingClientRect();
     if (animate && !reducedMotion.matches && container.animate) {
       var animation = container.animate([
@@ -232,7 +224,7 @@
     syncActivity();
   }
 
-  toggle.addEventListener('click', function () { setOpen(!open, true, true); });
+  toggle.addEventListener('click', function () { setOpen(!open, true); });
   themeButton.addEventListener('click', function () { window.siteTheme.toggle(); });
   actions.forEach(function (button) {
     button.addEventListener('click', function (event) { runAction(button.dataset.studioAction, event, button); });
@@ -259,5 +251,5 @@
     if (event.matches && foldAnimation) { foldAnimation.finish(); }
   });
   syncTheme();
-  setOpen(open, false, false);
+  setOpen(open, false);
 }());

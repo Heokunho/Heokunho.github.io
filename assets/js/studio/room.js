@@ -37,7 +37,7 @@ export function createRoom({ publications = [], news = [] } = {}) {
   const sage = material('#889b8e', '#7d9990');
   const ochre = material('#c6a06f', '#b69771');
   const leaf = material('#768a72', '#617965');
-  const rugMaterial = material('#d6d9cf', '#3d4f59');
+  const rugMaterial = material('#aebda5', '#405b59');
   const lampInner = material('#fff1cf', '#a8b2b8', { emissive: '#ffe0a3', emissiveIntensity: 0.6 });
 
   function roundedGeometry(width, height, depth, radius = 0.025) {
@@ -112,7 +112,7 @@ export function createRoom({ publications = [], news = [] } = {}) {
 
   const desk = new THREE.Group();
   desk.name = 'Desk';
-  desk.position.x = 0.25;
+  desk.position.x = 0.40;
   root.add(desk);
   box(2.12, 0.10, 0.83, woodEdge, -1.45, 0.91, -1.02, desk);
   box(1.95, 0.10, 0.68, wood, -1.45, 0.82, -1.02, desk);
@@ -129,7 +129,7 @@ export function createRoom({ publications = [], news = [] } = {}) {
   const shelf = new THREE.Group();
   shelf.name = 'Publication bookshelf';
   // Run along the floor's short left edge, with the book spines facing inward.
-  shelf.position.set(-2.35, 0, 0.40);
+  shelf.position.set(-2.50, 0, 0.40);
   shelf.rotation.y = Math.PI / 2;
   root.add(shelf);
   const shelfWidth = 1.50;
@@ -209,7 +209,7 @@ export function createRoom({ publications = [], news = [] } = {}) {
   newspaper.name = 'Research newspaper';
   newspaper.userData.newsCount = news.length;
   newspaper.userData.latestHeadline = news[0]?.text || '';
-  newspaper.position.set(-1.23, 0.972, -1.02);
+  newspaper.position.set(-1.08, 0.972, -1.02);
   newspaper.rotation.y = -0.10;
   root.add(newspaper);
   const paperFold = new THREE.Group();
@@ -352,7 +352,7 @@ export function createRoom({ publications = [], news = [] } = {}) {
 
   const plant = new THREE.Group();
   plant.name = 'Small desk plant';
-  plant.position.set(-0.41, 0.968, -1.19);
+  plant.position.set(-0.26, 0.968, -1.19);
   root.add(plant);
   cylinder(0.108, 0.077, 0.16, ivory, 0, 0.08, 0, plant);
   cylinder(0.091, 0.091, 0.012, wood, 0, 0.16, 0, plant);
@@ -398,15 +398,15 @@ export function createRoom({ publications = [], news = [] } = {}) {
   }
 
   const obstacles = [
-    { minX: -2.26, maxX: -0.14, minZ: -1.435, maxZ: -0.605 },
+    { minX: -2.11, maxX: 0.01, minZ: -1.435, maxZ: -0.605 },
     { minX: 0.47, maxX: 1.05, minZ: -1.59, maxZ: -1.01 },
-    { minX: -2.575, maxX: -2.125, minZ: -0.35, maxZ: 1.15 },
+    { minX: -2.725, maxX: -2.275, minZ: -0.35, maxZ: 1.15 },
     // The exit sequence deliberately traverses this otherwise closed doorway.
     { minX: 2.63, maxX: 2.89, minZ: -1.49, maxZ: -0.35 },
   ];
   const targets = {
-    books: { x: -1.66, z: 0.62, lookAt: { x: -2.35, z: 0.62 } },
-    news: { x: -1.23, z: -0.25, lookAt: { x: -1.23, z: -1.02 } },
+    books: { x: -1.81, z: 0.62, lookAt: { x: -2.50, z: 0.62 } },
+    news: { x: -1.08, z: -0.25, lookAt: { x: -1.08, z: -1.02 } },
     lamp: { x: 0.53, z: -0.68, lookAt: { x: 0.53, z: -1.30 } },
     door: {
       x: 2.14, z: -0.92, lookAt: { x: 2.76, z: -0.92 },
@@ -419,7 +419,7 @@ export function createRoom({ publications = [], news = [] } = {}) {
     // the shelf so the reaching hand, rather than the torso, meets its spine.
     const stanceZ = shelf.position.z - volume.position.x + 0.22;
     targets[`publication:${index}`] = {
-      x: -1.66, z: stanceZ,
+      x: -1.81, z: stanceZ,
       lookAt: { x: shelf.position.x, z: stanceZ },
     };
   }

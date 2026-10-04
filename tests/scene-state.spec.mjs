@@ -28,6 +28,9 @@ export function createAvatar() {
 ` });
   });
   await page.goto('/');
+  if (await page.locator('#studio-toggle').getAttribute('aria-expanded') === 'false') {
+    await page.locator('#studio-toggle').click();
+  }
   await expect(page.locator('#motion-studio')).toHaveAttribute('data-ready', 'true');
 }
 
@@ -47,6 +50,9 @@ export function createRoom(content) {
   });
   if (navigate) {
     await page.goto('/');
+    if (await page.locator('#studio-toggle').getAttribute('aria-expanded') === 'false') {
+      await page.locator('#studio-toggle').click();
+    }
     await expect(page.locator('#motion-studio')).toHaveAttribute('data-ready', 'true');
   }
 }
@@ -83,7 +89,6 @@ for (const width of [1280, 390]) {
   test(`Door tooltip follows the cursor and stays inside the scene at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.addInitScript(() => localStorage.setItem('kunho-studio-open', 'true'));
     await observeRoom(page);
     await page.locator('#studio-canvas').scrollIntoViewIfNeeded();
     const tooltip = page.locator('#studio-hover');
@@ -193,11 +198,9 @@ test('clicking the door folds only after walking outside and supports a second e
     pose: window.__studioPose,
     doorX: window.__studioRoom.targets.door.lookAt.x,
     frames: window.__studioFrames,
-    saved: localStorage.getItem('kunho-studio-open'),
   }));
   expect(departure.pose.x).toBeGreaterThan(departure.doorX + 0.2);
   expect(departure.pose.visible).toBe(false);
-  expect(departure.saved).toBe('false');
   expect(departure.frames.some(frame => frame.open === 'true' && frame.x > departure.doorX && frame.visible)).toBe(true);
   expect(departure.frames.some(frame => Math.abs(frame.doorAngle) > 0.4)).toBe(true);
   await expectResetAfterExit(page);
